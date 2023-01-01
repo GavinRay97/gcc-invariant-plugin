@@ -2,7 +2,11 @@
 
 A work-in-progress GCC plugin to support Design-by-Contract (DbC) in C++
 
+Status: **Functional ✅** (though edge cases may exist)
+
 Inspired wholly by the D Programming Language's [invariant](https://tour.dlang.org/tour/en/gems/contract-programming) feature.
+
+You can find a pre-compiled version of the plugin for Linux x86_64 in the root of this repository (`libgcc-invariant-plugin.so`)
 
 ## Blogpost
 
@@ -12,7 +16,18 @@ See the blogpost about this project:
 
 ## Example
 
-Meant to be used in tandem with the new Contracts feature in C++20, recently upstreamed to GCC:
+Meant to be used in tandem with the new Contracts feature in C++20, recently upstreamed to GCC 13 development branch:
+
+-   https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=ea63396f6b08f88f1cde827e6cab94cd488f7fa7
+
+Compiling the below code with the plugin enabled will result in the following error:
+
+```sh-session
+$ g++ -fplugin=./libgcc-invariant-plugin.so -c test.cpp -o test-binary
+$ ./test-binary
+test.cpp:17: void Stack::check_invariants(): Assertion `top >= 0 && top <= 50' failed.
+Aborted
+```
 
 ```cpp
 class Stack
