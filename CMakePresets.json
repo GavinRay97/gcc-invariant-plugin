@@ -1,0 +1,131 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default Config",
+      "description": "Default build using Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/default",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_COLOR_DIAGNOSTICS": "ON",
+        "CMAKE_C_STANDARD": "23",
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_EXTENSIONS": "ON",
+        "CMAKE_CXX_STANDARD_REQUIRED": "OFF",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_LINK_WHAT_YOU_USE": "ON"
+      },
+      "environment": {
+        "COMMON_DEFINES": "-D_GLIBCXX_ASSERTIONS -D_GLIBCXX_USE_CHAR8_T -D__USE_GNU",
+        "COMMON_C_FLAGS": " $env{COMMON_DEFINES} -Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-deprecated-enum-enum-conversion -pipe -fPIC -ftrivial-auto-var-init=zero",
+        "COMMON_CXX_FLAGS": "$env{COMMON_C_FLAGS}",
+        "DEBUG_DEFINES": "-DDEBUG -D_GLIBCXX_DEBUG",
+        "DEBUG_C_FLAGS": "$env{DEBUG_DEFINES} -ggdb3 -O0 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer",
+        "DEBUG_CXX_FLAGS": "$env{DEBUG_C_FLAGS}",
+        "RELEASE_DEFINES": "-D_FORTIFY_SOURCE=3",
+        "RELEASE_C_FLAGS": "$env{RELEASE_DEFINES} -Ofast -march=native -mtune=native -flto",
+        "RELEASE_CXX_FLAGS": "$env{RELEASE_C_FLAGS}",
+        "COMMON_SANITIZER_FLAGS": "-fsanitize=address,undefined -fsanitize-address-use-after-scope",
+        "GCC_SANITIZER_FLAGS": "$env{COMMON_SANITIZER_FLAGS}",
+        "LLVM_SANITIZER_FLAGS": "$env{COMMON_SANITIZER_FLAGS} -fsanitize=function,integer,nullability",
+        "CLANG_ONLY_C_FLAGS": "",
+        "CLANG_ONLY_CXX_FLAGS": "$env{CLANG_ONLY_C_FLAGS} -Wthread-safety -Wthread-safety-beta -Wthread-safety-verbose"
+      },
+      "vendor": {}
+    },
+    {
+      "name": "debug-gcc",
+      "displayName": "Debug GCC",
+      "description": "Debug build with GCC and -fanalyzer",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "/usr/local/gcc-dev/bin/gcc-dev",
+        "CMAKE_CXX_COMPILER": "/usr/local/gcc-dev/bin/g++-dev",
+        "CMAKE_C_FLAGS": "$env{COMMON_C_FLAGS} $env{DEBUG_C_FLAGS}",
+        "CMAKE_CXX_FLAGS": "$env{COMMON_DEFINES} "
+      }
+    },
+    {
+      "name": "debug-gcc-fanalyzer",
+      "displayName": "Debug GCC with -fanalyzer",
+      "description": "Debug build with GCC and -fanalyzer",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "/usr/local/gcc-dev/bin/gcc-dev",
+        "CMAKE_CXX_COMPILER": "/usr/local/gcc-dev/bin/g++-dev",
+        "CMAKE_C_FLAGS": "$env{COMMON_C_FLAGS} $env{DEBUG_C_FLAGS} $env{COMMON_SANITIZER_FLAGS} -fanalyzer -fanalyzer-fine-grained",
+        "CMAKE_CXX_FLAGS": "$env{COMMON_CXX_FLAGS} $env{DEBUG_CXX_FLAGS} $env{COMMON_SANITIZER_FLAGS} -fanalyzer -fanalyzer-fine-grained "
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release Build",
+      "description": "Release build using Ninja generator",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_FLAGS": "$env{COMMON_C_FLAGS} $env{RELEASE_C_FLAGS}",
+        "CMAKE_CXX_FLAGS": "$env{COMMON_CXX_FLAGS} $env{RELEASE_CXX_FLAGS}"
+      }
+    },
+    {
+      "name": "coverage",
+      "displayName": "Coverage Build",
+      "description": "Coverage build using Ninja generator",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build/coverage",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_FLAGS": "$env{COMMON_C_FLAGS} $env{DEBUG_C_FLAGS} -fprofile-arcs -ftest-coverage",
+        "CMAKE_CXX_FLAGS": "$env{COMMON_CXX_FLAGS} $env{DEBUG_CXX_FLAGS}  -fprofile-arcs -ftest-coverage"
+      }
+    },
+    {
+      "name": "sanitize",
+      "displayName": "Sanitize Build",
+      "description": "Sanitize build using Ninja generator",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build/sanitize",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_FLAGS": "$env{COMMON_C_FLAGS} $env{DEBUG_C_FLAGS} $env{LLVM_SANITIZER_FLAGS} $env{CLANG_ONLY_C_FLAGS}",
+        "CMAKE_CXX_FLAGS": "$env{COMMON_CXX_FLAGS} $env{DEBUG_CXX_FLAGS} $env{LLVM_SANITIZER_FLAGS} $env{CLANG_ONLY_CXX_FLAGS} --gcc-toolchain=/usr/local/gcc-dev",
+        "CMAKE_EXE_LINKER_FLAGS": "$env{LLVM_SANITIZER_FLAGS} $env{LLD_LINKER_FLAGS}",
+        "CMAKE_SHARED_LINKER_FLAGS": "$env{LLVM_SANITIZER_FLAGS} $env{LLD_LINKER_FLAGS}",
+        "CMAKE_C_COMPILER": "/home/user/projects/llvm-project/build/bin/clang-16",
+        "CMAKE_CXX_COMPILER": "/home/user/projects/llvm-project/build/bin/clang++"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    }
+  ],
+  "vendor": {}
+}
