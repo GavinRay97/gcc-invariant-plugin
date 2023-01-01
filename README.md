@@ -1,3 +1,8 @@
+- [GCC Design-by-Contract \[\[invariant\]\] plugin](#gcc-design-by-contract-invariant-plugin)
+   - [Blogpost](#blogpost)
+   - [Example](#example)
+   - [Building and Testing the Plugin](#building-and-testing-the-plugin)
+
 # GCC Design-by-Contract [[invariant]] plugin
 
 A work-in-progress GCC plugin to support Design-by-Contract (DbC) in C++
