@@ -4,6 +4,55 @@ A work-in-progress GCC plugin to support Design-by-Contract (DbC) in C++
 
 Inspired wholly by the D Programming Language's [invariant](https://tour.dlang.org/tour/en/gems/contract-programming) feature.
 
+## Blogpost
+
+See the blogpost about this project:
+
+-   https://gavinray97.github.io/blog/adding-invariant-to-cpp-design-by-contract
+
+## Example
+
+Meant to be used in tandem with the new Contracts feature in C++20, recently upstreamed to GCC:
+
+```cpp
+class Stack
+{
+private:
+  static constexpr int MAX_SIZE = 100;
+
+  int top     = 0;
+  int old_top = 0;
+  int data[MAX_SIZE];
+
+  [[demo::invariant]] [[gnu::used]]
+  void check_invariants()
+  {
+	assert(top >= 0 && top <= 50);
+  }
+
+public:
+  bool empty() const { return top == 0; }
+  bool full() const { return top == MAX_SIZE; }
+
+  void push(int value)
+  [[pre: !full()]]
+  [[post: top == old_top + 1]]
+  {
+    data[top++] = value;
+    old_top = top;
+  }
+
+
+  int pop()
+  [[pre: !empty()]]
+  [[post: top == old_top - 1]]
+  {
+    old_top = top;
+    return data[--top];
+  }
+};
+```
+
 ## Building and Testing the Plugin
 
 ```sh-session
