@@ -66,9 +66,64 @@ public:
     return data[--top];
   }
 };
+
+int
+main()
+{
+  Stack stack;
+
+  for (int i = 0; i < 100; i++)
+    stack.push(i);
+
+  for (int i = 0; i < 100; i++)
+    stack.pop();
+
+  return 0;
+}
 ```
 
 ## Building and Testing the Plugin
+
+This plugin is built using CMake. Usage is straightforward, though it does require GCC 13 development branch to be installed.
+
+If you're on Linux, you can install GCC 13 from Jonathan Wakely's development snapshots probably:
+
+-   https://jwakely.github.io/pkg-gcc-latest/
+
+If you don't want to do that and you want to build it yourself, the following is the magic incantation I use to build GCC on my machine. Adapt it for your package manager and system:
+
+```sh-session
+$ sudo dnf install flex
+$
+$ git clone git://gcc.gnu.org/git/gcc.git gcc-dev
+$ cd gcc-dev
+$
+$ ./contrib/download_prerequisites
+$ mkdir build && cd build
+$
+$ ../configure -v \
+	--build=x86_64-linux-gnu \
+	--host=x86_64-linux-gnu \
+	--target=x86_64-linux-gnu \
+	--prefix=/usr/local/gcc-dev \
+	--enable-checking=release \
+	--enable-languages=c,c++ \
+	--disable-multilib \
+	--disable-nls \
+	--with-system-zlib
+$
+$ make -j 16
+$ sudo make install-strip
+```
+
+Now with GCC 13 installed, you can build the plugin using CMake. Go into the CMakelists.txt and edit the definitions of:
+
+```cmake
+set(G++_COMPILER /usr/local/gcc-dev/bin/g++)
+set(GCC_PLUGIN_DIR /usr/local/gcc-dev/lib/gcc/x86_64-linux-gnu/13.0.0/plugin)
+```
+
+Then you can invoke the following commands:
 
 ```sh-session
 $ mkdir build
@@ -78,11 +133,3 @@ $ cmake --build --target run-gcc
 ```
 
 This will build the plugin located in `src/plugin.cpp` and test it against the contents of `test/test.cpp`.
-
-It does this by running the following command:
-
-```cmake
- ${GCC_COMPILER} -fplugin=./libgcc-invariant-plugin.so -c \
-    -o ${CMAKE_CURRENT_SOURCE_DIR}/test-binary \
-       ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp
-```
